@@ -1,0 +1,16 @@
+---
+
+# elasticache_manage_cluster_id is what gets passed to the "name" parameter of the elasticache ansible module, which is CacheClusterId in AWS terminology
+# elasticache_manage_cluster_id:
+
+# elasticache_manage_name is what gets set as the cluster's name tag
+# elasticache_manage_name:
+# elasticache_manage_engine:
+# elasticache_manage_cache_engine_version:
+# elasticache_manage_node_type:
+# elasticache_manage_num_nodes:
+# elasticache_manage_elb_health_check:
+# elasticache_manage_cache_subnet_group:
+elasticache_manage_security_group_ids:      "{{ hostvars[inventory_hostname][env + '_data'] }}"
+elasticache_manage_cache_port:  11211
+elasticache_manage_debug: "{{ debug|default('False') }}"
