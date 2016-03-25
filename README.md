@@ -21,11 +21,37 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```
+- name: Ensure elasticache memcached cluster
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    stack: streetjumpers
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+  pre_tasks:
+    - include_vars: "{{ item }}"
+      with_items:
+        - ../../../account/vars.yml
+        - ../env.yml
+      tags: always
+
+    - name: set fact
+      set_fact:
+        layer_config: "{{ stacks.streetjumpers.layers.memcached }}"
+
+  roles:
+    - role: reactiveops.manage-elasticache
+      elasticache_manage_cluster_id:              "{{ layer_config.ec_cluster_id }}"
+      elasticache_manage_name:                    "{{ layer_config.ec_cluster_name }}"
+      elasticache_manage_engine:                  "{{ layer_config.ec_engine }}"
+      elasticache_manage_cache_engine_version:    "{{ layer_config.ec_engine_version }}"
+      elasticache_manage_node_type:               "{{ layer_config.ec_nodetype }}"
+      elasticache_manage_num_nodes:               "{{ layer_config.num_nodes }}"
+      elasticache_manage_elb_health_check:        "{{ layer_config.health_check }}"
+      elasticache_manage_cache_subnet_group:      "{{ layer_config.cache_subnet_group }}"
+
+```
 
 License
 -------
