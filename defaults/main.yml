@@ -11,6 +11,6 @@
 # elasticache_manage_num_nodes:
 # elasticache_manage_elb_health_check:
 # elasticache_manage_cache_subnet_group:
-elasticache_manage_security_group_ids:      "{{ hostvars[inventory_hostname][env + '_data'] }}"
+elasticache_manage_security_group_ids: "{{ hostvars[inventory_hostname][env + '_data'] }}"
 elasticache_manage_cache_port:  11211
 elasticache_manage_debug: "{{ debug|default('False') }}"
