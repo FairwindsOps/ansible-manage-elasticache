@@ -1,0 +1,26 @@
+---
+
+# quick and dirty
+- name: Elasticache subnet group
+  elasticache_subnet_group:
+    state: present
+    region:                  "{{ elasticache_manage_region }}"
+    name:         "{{ env }}-cache"
+    description:  "{{ env }}-cache"
+    subnets:      subnet-ae9234d8
+
+- name: Ensure elasticache cluster
+  elasticache:
+    name:                    "{{ elasticache_manage_cluster_id }}"
+    state:                   present
+    region:                  "{{ elasticache_manage_region }}"
+    engine:                  "{{ elasticache_manage_engine }}"
+    # cache_engine_version:    "{{ elasticache_manage_cache_engine_version }}"
+    node_type:               "{{ elasticache_manage_node_type }}"
+    num_nodes:               "{{ elasticache_manage_num_nodes }}"
+    # cache_port:              "{{ elasticache_manage_cache_port }}"
+    cache_subnet_group:      "{{ elasticache_manage_cache_subnet_group }}"
+    # security_group_ids:      "{{ elasticache_manage_security_group_ids }}"
+  register: elasticache_results
+
+# I manually set the SG for kube

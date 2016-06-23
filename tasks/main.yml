@@ -1,37 +1,6 @@
----
 
-# - debug: var=elasticache_manage_security_group_ids
+- include: memcached.yml
+  when: elasticache_manage_engine == 'memcached'
 
-- name: Ensure elasticache memcached cluster
-  elasticache:
-    name:                    "{{ elasticache_manage_cluster_id }}"
-    state:                   present
-    region:                  "{{ aws_region }}"
-    engine:                  "{{ elasticache_manage_engine }}"
-    cache_engine_version:    "{{ elasticache_manage_cache_engine_version }}"
-    node_type:               "{{ elasticache_manage_node_type }}"
-    num_nodes:               "{{ elasticache_manage_num_nodes }}"
-    cache_port:              "{{ elasticache_manage_cache_port }}"
-    cache_subnet_group:      "{{ elasticache_manage_cache_subnet_group }}"
-    security_group_ids:      "{{ elasticache_manage_security_group_ids }}"
-  register: elasticache_results
-
-# - debug: var=elasticache_results.elasticache.data.CacheClusterId
-
-- shell: aws iam get-user --query 'User.Arn'| cut -f5 -d':'
-  register: get_user
-  no_log: true
-  changed_when: false
-
-# - debug: var=get_user.stdout
-
-- name: assemble the ARN of the cluster
-  set_fact:
-    elasticache_cluster_arn: arn:aws:elasticache:{{ aws_region }}:{{ get_user.stdout }}:cluster:{{elasticache_results.elasticache.data.CacheClusterId}}
-
-# - debug: var=elasticache_cluster_arn
-
-# this is difficult to make idempotent, setting changed_when: false for now
-- name: tag the cluster
-  shell: aws elasticache add-tags-to-resource --region={{ aws_region }} --resource-name {{ elasticache_cluster_arn }} --tags Key=Env,Value={{ env }} Key=Name,Value={{ elasticache_manage_name }}
-  changed_when: false
+- include: redis.yml
+  when: elasticache_manage_engine == 'redis'
