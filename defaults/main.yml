@@ -3,6 +3,7 @@
 # elasticache_manage_cluster_id is what gets passed to the "name" parameter of the elasticache ansible module, which is CacheClusterId in AWS terminology
 # elasticache_manage_cluster_id:
 
+elasticache_manage_region: "{{aws_region}}"
 # elasticache_manage_name is what gets set as the cluster's name tag
 # elasticache_manage_name:
 # elasticache_manage_engine:
