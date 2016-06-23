@@ -1,6 +1,6 @@
 
 - include: memcached.yml
-  when: elasticache_manage_engine == 'memcached'
+  when: elasticache_manage_memcached
 
 - include: redis.yml
-  when: elasticache_manage_engine == 'redis'
+  when: elasticache_manage_redis

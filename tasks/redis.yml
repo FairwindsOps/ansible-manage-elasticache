@@ -1,26 +1,27 @@
 ---
 
-# quick and dirty
-- name: Elasticache subnet group
-  elasticache_subnet_group:
-    state: present
-    region:                  "{{ elasticache_manage_region }}"
-    name:         "{{ env }}-cache"
-    description:  "{{ env }}-cache"
-    subnets:      subnet-ae9234d8
-
-- name: Ensure elasticache cluster
+- name: Ensure elasticache redis cluster
   elasticache:
-    name:                    "{{ elasticache_manage_cluster_id }}"
+    name:                    "{{ elasticache_manage_redis_name }}"
     state:                   present
     region:                  "{{ elasticache_manage_region }}"
-    engine:                  "{{ elasticache_manage_engine }}"
-    # cache_engine_version:    "{{ elasticache_manage_cache_engine_version }}"
-    node_type:               "{{ elasticache_manage_node_type }}"
-    num_nodes:               "{{ elasticache_manage_num_nodes }}"
-    # cache_port:              "{{ elasticache_manage_cache_port }}"
-    cache_subnet_group:      "{{ elasticache_manage_cache_subnet_group }}"
-    # security_group_ids:      "{{ elasticache_manage_security_group_ids }}"
+    engine:                  redis
+    node_type:               "{{ elasticache_manage_redis_node_type }}"
+    num_nodes:               "{{ elasticache_manage_redis_num_nodes }}"
+    cache_subnet_group:      "{{ elasticache_manage_redis_cache_subnet_group }}"
+    security_group_ids:      "{{ elasticache_manage_redis_security_group_ids }}"
   register: elasticache_results
 
-# I manually set the SG for kube
+- shell: aws iam get-user --query 'User.Arn'| cut -f5 -d':'
+  register: get_user
+  no_log: true
+  changed_when: false
+
+- name: assemble the ARN of the cluster
+  set_fact:
+    elasticache_cluster_arn: arn:aws:elasticache:{{ aws_region }}:{{ get_user.stdout }}:cluster:{{elasticache_results.elasticache.data.CacheClusterId}}
+
+# this is difficult to make idempotent, setting changed_when: false for now
+- name: tag the cluster
+  shell: aws elasticache add-tags-to-resource --region={{ aws_region }} --resource-name {{ elasticache_cluster_arn }} --tags Key=Env,Value={{ env }} Key=Name,Value={{ elasticache_manage_memcached_name }}
+  changed_when: false
