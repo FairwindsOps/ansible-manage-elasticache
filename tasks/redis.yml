@@ -1,0 +1,27 @@
+---
+
+- name: Ensure elasticache redis cluster
+  elasticache:
+    name:                    "{{ elasticache_manage_redis_name }}"
+    state:                   present
+    region:                  "{{ elasticache_manage_region }}"
+    engine:                  redis
+    node_type:               "{{ elasticache_manage_redis_node_type }}"
+    num_nodes:               "{{ elasticache_manage_redis_num_nodes }}"
+    cache_subnet_group:      "{{ elasticache_manage_redis_cache_subnet_group }}"
+    security_group_ids:      "{{ elasticache_manage_redis_security_group_ids }}"
+  register: elasticache_results
+
+- shell: aws iam get-user --query 'User.Arn'| cut -f5 -d':'
+  register: get_user
+  no_log: true
+  changed_when: false
+
+- name: assemble the ARN of the cluster
+  set_fact:
+    elasticache_cluster_arn: arn:aws:elasticache:{{ aws_region }}:{{ get_user.stdout }}:cluster:{{elasticache_results.elasticache.data.CacheClusterId}}
+
+# this is difficult to make idempotent, setting changed_when: false for now
+- name: tag the cluster
+  shell: aws elasticache add-tags-to-resource --region={{ aws_region }} --resource-name {{ elasticache_cluster_arn }} --tags Key=Env,Value={{ env }} Key=Name,Value={{ elasticache_manage_memcached_name }}
+  changed_when: false
