@@ -1,5 +1,9 @@
 ---
 
+- block:
+  - debug: var=elasticache_manage_redis_security_group_ids
+  when: elasticache_manage_debug
+
 - name: Ensure elasticache redis cluster
   elasticache:
     name:                    "{{ elasticache_manage_redis_name }}"
