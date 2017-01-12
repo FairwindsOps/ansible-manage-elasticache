@@ -1,7 +1,7 @@
 Role Name
 =========
 
-Manage elasticache clusters in the Omnia framework. Currently memcached only.
+Manage elasticache clusters in the Omnia framework. memcached and redis are supported.
 
 Requirements
 ------------

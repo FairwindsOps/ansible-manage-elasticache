@@ -27,5 +27,5 @@
 
 # this is difficult to make idempotent, setting changed_when: false for now
 - name: tag the cluster
-  shell: aws elasticache add-tags-to-resource --region={{ aws_region }} --resource-name {{ elasticache_cluster_arn }} --tags Key=Env,Value={{ env }} Key=Name,Value={{ elasticache_manage_memcached_name }}
+  shell: aws elasticache add-tags-to-resource --region={{ aws_region }} --resource-name {{ elasticache_cluster_arn }} --tags Key=Env,Value={{ env }} Key=Name,Value={{ elasticache_manage_redis_name }}
   changed_when: false
