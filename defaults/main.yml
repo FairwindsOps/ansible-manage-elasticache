@@ -1,4 +1,5 @@
 ---
+env: "{{ elasticache_manage_environment }}"
 
 elasticache_manage_memcached: False
 elasticache_manage_redis: False
