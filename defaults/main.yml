@@ -22,6 +22,7 @@ elasticache_manage_redis_node_type: 'cache.t2.small'
 elasticache_manage_redis_num_nodes: 1
 elasticache_manage_redis_cache_subnet_group: "{{ elasticache_manage_context | default(elasticache_manage_environment) }}-elasticache"
 elasticache_manage_redis_security_group_ids: "{{ elasticache_manage_redis_security_group_ids | mandatory }}"
-
+elasticache_manage_redis_snapshot_retention_limit: 0
+elasticache_manage_redis_failover_enabled: false
 
 elasticache_manage_debug: "{{ debug|default('False') }}"
