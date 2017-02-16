@@ -1,0 +1,22 @@
+---
+- name: ensure redis replication
+  elasticache_replication_group: 
+    state: present
+    id: "{{ elasticache_manage_redis_name }}"
+    description: "{{ elasticache_manage_redis_name }} replication group"
+    cache_node_type: "{{ elasticache_manage_redis_node_type }}"
+    num_of_cache_clusters: "{{ elasticache_manage_redis_num_nodes }}"
+    engine: redis
+    engine_version: "{{ elasticache_manage_redis_cache_engine_version }}"
+    cache_subnet_group_name: "{{ elasticache_manage_redis_cache_subnet_group }}"
+    security_group_ids: "{{ elasticache_manage_redis_security_group_ids }}"
+    failover_enabled: "{{ elasticache_manage_redis_failover_enabled }}"
+    snapshot_retention_limit: "{{ elasticache_manage_redis_snapshot_retention_limit }}"
+    tags: 
+      Env: "{{ env }}"
+      Name: "{{ elasticache_manage_redis_name }}"
+    wait: "{{ elasticache_manage_redis_wait }}"
+  register: elasticache_results
+
+- debug:
+    msg: "{{ elasticache_results }}"

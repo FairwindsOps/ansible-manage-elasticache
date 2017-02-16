@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
+# Borrowed and heavily modified from: https://github.com/wimnat/ansible-modules/blob/master/elasticache/elasticache_replication_group.py
+
 DOCUMENTATION = '''
 ---
 module: elasticache_replication_group
@@ -185,6 +187,11 @@ try:
 except ImportError:
     HAS_BOTO3 = False
 
+def format_tags(tags):
+  tag_list= []
+  for tag in tags:
+    tag_list += [{"Key": tag, "Value": tags[tag]}]
+  return tag_list
 
 def check_for_rep_group(module, connection):
 
@@ -220,9 +227,7 @@ def create_rep_group(module, connection):
     params['CacheSubnetGroupName'] = module.params.get('cache_subnet_group_name')
     params['CacheSecurityGroupNames'] = module.params.get('cache_security_group_names')
     params['SecurityGroupIds'] = module.params.get('security_group_ids')
-    # need to do stuff here
-    params['Tags'] = module.params.get('tags')
-    # need to do stuff here
+    params['Tags'] = format_tags(module.params.get('tags'))
     params['SnapshotArns'] = module.params.get('snapshot_arn')
     params['PreferredMaintenanceWindow'] = module.params.get('preferred_maintenance_window')
     params['Port'] = module.params.get('port')
@@ -232,7 +237,7 @@ def create_rep_group(module, connection):
     params['SnapshotWindow'] = module.params.get('snapshot_window')
 
     # Remove any items with a value of None
-    for k,v in list(params.items()):
+    for k, v in list(params.items()):
         if v is None:
             del params[k]
 
@@ -261,7 +266,7 @@ def destroy_rep_group(module, connection):
     params['FinalSnapshotIdentifier'] = module.params.get('final_snapshot_id')
 
     # Remove any items with a value of None
-    for k,v in list(params.items()):
+    for k, v in list(params.items()):
         if v is None:
             del params[k]
 
@@ -273,80 +278,36 @@ def destroy_rep_group(module, connection):
     print result
 
 
-def modify_rep_group(module, connection, rep_group):
+def modify_rep_group(module, connection, rep_cluster):
 
     changed = False
+    result = {}
+    if (rep_cluster['Status']) == 'available':
 
-    params = dict()
+        params = dict()
+        params['ReplicationGroupId'] = module.params.get('id')
+        params['ReplicationGroupDescription'] = module.params.get('description', None)
+        params['SnapshotWindow'] = module.params.get('snapshot_window', None)
+        params['CacheNodeType'] = module.params.get('cache_node_type', None)
+        params['SecurityGroupIds'] = module.params.get('security_group_ids', None)
+        params['EngineVersion'] = module.params.get('engine_version', None)
+        params['PreferredMaintenanceWindow'] = module.params.get('preferred_maintenance_window', None)
+        params['AutoMinorVersionUpgrade'] = module.params.get('auto_minor_version_upgrade', None)
+        params['PrimaryClusterId'] = module.params.get('primary_cluster_id', None)
+        params['CacheSecurityGroupNames'] = module.params.get('cache_security_group_names', None)
+        params['CacheParameterGroupName'] = module.params.get('cache_parameter_group_name', None)
 
-    params['ReplicationGroupId'] = module.params.get('id')
-    if params['ReplicationGroupId'] == rep_group['ReplicationGroups'][0]['ReplicationGroupId']:
-        del params['ReplicationGroupId']
-    params['ReplicationGroupDescription'] = module.params.get('description')
-    if params['ReplicationGroupDescription'] == rep_group['ReplicationGroups'][0]['ReplicationGroupDescription']:
-        del params['ReplicationGroupDescription']
-    params['PrimaryClusterId'] = module.params.get('primary_cluster_id')
-    if params['PrimaryClusterId'] == rep_group['ReplicationGroups'][0]['PrimaryClusterId']:
-        del params['PrimaryClusterId']
-    params['AutomaticFailoverEnabled'] = module.params.get('failover_enabled')
-    if params['AutomaticFailoverEnabled'] == rep_group['ReplicationGroups'][0]['AutomaticFailoverEnabled']:
-        del params['AutomaticFailoverEnabled']
-    params['NumCacheClusters'] = module.params.get('num_of_cache_clusters')
-    if params['NumCacheClusters'] == rep_group['ReplicationGroups'][0]['NumCacheClusters']:
-        del params['NumCacheClusters']
-    params['PreferredCacheClusterAZs'] = module.params.get('preferred_cache_cluster_azs')
-    if params['PreferredCacheClusterAZs'] == rep_group['ReplicationGroups'][0]['PreferredCacheClusterAZs']:
-        del params['PreferredCacheClusterAZs']
-    params['CacheNodeType'] = module.params.get('cache_node_type')
-    if params['CacheNodeType'] == rep_group['ReplicationGroups'][0]['CacheNodeType']:
-        del params['CacheNodeType']
-    params['Engine'] = module.params.get('engine')
-    if params['Engine'] == rep_group['ReplicationGroups'][0]['Engine']:
-        del params['Engine']
-    params['EngineVersion'] = module.params.get('engine_version')
-    if params['EngineVersion'] == rep_group['ReplicationGroups'][0]['EngineVersion']:
-        del params['EngineVersion']
-    params['CacheParameterGroupName'] = module.params.get('cache_parameter_group_name')
-    if params['CacheParameterGroupName'] == rep_group['ReplicationGroups'][0]['CacheParameterGroupName']:
-        del params['CacheParameterGroupName']
-    params['CacheSubnetGroupName'] = module.params.get('cache_subnet_group_name')
-    if params['CacheSubnetGroupName'] == rep_group['ReplicationGroups'][0]['CacheSubnetGroupName']:
-        del params['CacheSubnetGroupName']
-    params['CacheSecurityGroupNames'] = module.params.get('cache_security_group_names')
-    if params['CacheSecurityGroupNames'] == rep_group['ReplicationGroups'][0]['CacheSecurityGroupNames']:
-        del params['CacheSecurityGroupNames']
-    params['SecurityGroupIds'] = module.params.get('security_group_ids')
-    if params['SecurityGroupIds'] == rep_group['ReplicationGroups'][0]['SecurityGroupIds']:
-        del params['SecurityGroupIds']
-    # need to do stuff here
-    params['Tags'] = module.params.get('tags')
-    if params['Tags'] == rep_group['ReplicationGroups'][0]['Tags']:
-        del params['Tags']
-    # need to do stuff here
-    params['SnapshotArns'] = module.params.get('snapshot_arn')
-    if params['SnapshotArns'] == rep_group['ReplicationGroups'][0]['SnapshotArns']:
-        del params['SnapshotArns']
-    params['PreferredMaintenanceWindow'] = module.params.get('preferred_maintenance_window')
-    if params['PreferredMaintenanceWindow'] == rep_group['ReplicationGroups'][0]['PreferredMaintenanceWindow']:
-        del params['PreferredMaintenanceWindow']
-    params['Port'] = module.params.get('port')
-    if params['Port'] == rep_group['ReplicationGroups'][0]['Port']:
-        del params['Port']
-    params['NotificationTopicArn'] = module.params.get('notification_topic_arn')
-    if params['NotificationTopicArn'] == rep_group['ReplicationGroups'][0]['NotificationTopicArn']:
-        del params['NotificationTopicArn']
-    params['AutoMinorVersionUpgrade'] = module.params.get('auto_minor_version_upgrade')
-    if params['AutoMinorVersionUpgrade'] == rep_group['ReplicationGroups'][0]['AutoMinorVersionUpgrade']:
-        del params['AutoMinorVersionUpgrade']
-    params['SnapshotRetentionLimit'] = module.params.get('snapshot_retention_limit')
-    if params['SnapshotRetentionLimit'] == rep_group['ReplicationGroups'][0]['SnapshotRetentionLimit']:
-        del params['SnapshotRetentionLimit']
-    params['SnapshotWindow'] = module.params.get('snapshot_window')
-    if params['SnapshotWindow'] == rep_group['ReplicationGroups'][0]['SnapshotWindow']:
-        del params['SnapshotWindow']
+        # Remove any items with a value of None
+        for k, v in list(params.items()):
+            if v is None:
+                del params[k]
 
-    #module.exit_json(replication_group=rep_group['ReplicationGroups'])
-    module.exit_json(changed=changed, **rep_group['ReplicationGroups'][0])
+        result = connection.modify_replication_group(**params)
+
+        if result['ReplicationGroup']['PendingModifiedValues']:
+            changed = True
+
+    module.exit_json(changed=changed, **result)
 
 
 def main():
@@ -398,13 +359,13 @@ def main():
         module.fail_json(msg=str(e))
 
     state = module.params.get('state')
-
     if state == "present":
         rep_group = check_for_rep_group(module, connection)
         if rep_group is False:
             create_rep_group(module, connection)
         else:
-            modify_rep_group(module, connection, rep_group)
+            rep_cluster = rep_group.get('ReplicationGroups', [{}])[0]
+            modify_rep_group(module, connection, rep_cluster)
     elif state == "absent":
         rep_group = check_for_rep_group(module, connection)
         if rep_group is False:
