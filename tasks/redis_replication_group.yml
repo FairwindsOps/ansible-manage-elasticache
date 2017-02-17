@@ -18,5 +18,11 @@
     wait: "{{ elasticache_manage_redis_wait }}"
   register: elasticache_results
 
-- debug:
-    msg: "{{ elasticache_results }}"
+- shell: aws iam get-user --query 'User.Arn'| cut -f5 -d':'
+  register: get_user
+  no_log: true
+  changed_when: false
+
+- name: assemble the ARN of the cluster
+  set_fact:
+    elasticache_cluster_arn: arn:aws:elasticache:{{ aws_region }}:{{ get_user.stdout }}:cluster:{{elasticache_results.ReplicationGroup.ReplicationGroupId}}

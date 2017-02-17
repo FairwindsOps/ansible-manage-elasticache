@@ -5,7 +5,7 @@
   when: elasticache_manage_debug
 
 - include: redis_cluster.yml
-  when: elasticache_manage_redis_num_nodes == 1
+  when: elasticache_manage_redis_num_nodes | int == 1
 
 - include: redis_replication_group.yml
-  when: elasticache_manage_redis_num_nodes > 1
+  when: elasticache_manage_redis_num_nodes | int > 1
