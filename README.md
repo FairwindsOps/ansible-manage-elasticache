@@ -56,7 +56,7 @@ Example Playbook
 License
 -------
 
-BSD
+Apache 2
 
 Author Information
 ------------------
