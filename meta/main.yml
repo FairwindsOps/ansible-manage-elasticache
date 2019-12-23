@@ -1,9 +1,9 @@
 galaxy_info:
   author: your name
   description:
-  company: ReactiveOps
+  company: Fairwinds
   license: license (GPLv2, CC-BY, etc)
   min_ansible_version: 1.2
   galaxy_tags: []
 dependencies:
-  - reactiveops.get-vpc-facts
+  - fairwinds.get-vpc-facts

@@ -41,7 +41,7 @@ Example Playbook
         layer_config: "{{ stacks.streetjumpers.layers.memcached }}"
 
   roles:
-    - role: reactiveops.manage-elasticache
+    - role: fairwinds.manage-elasticache
       elasticache_manage_cluster_id:              "{{ layer_config.ec_cluster_id }}"
       elasticache_manage_name:                    "{{ layer_config.ec_cluster_name }}"
       elasticache_manage_engine:                  "{{ layer_config.ec_engine }}"
